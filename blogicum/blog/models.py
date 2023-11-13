@@ -112,6 +112,7 @@ class Comment(models.Model):
         Post,
         on_delete=models.CASCADE,
         related_name='comments',
+        verbose_name='Публикация'
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -124,6 +125,8 @@ class Comment(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
         ordering = ('created_at',)
 
     def __str__(self):
