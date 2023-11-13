@@ -90,7 +90,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-MEDIA_ROOT = BASE_DIR / 'media' 
+MEDIA_ROOT = BASE_DIR / 'media'
 
 CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
 

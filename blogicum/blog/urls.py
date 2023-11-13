@@ -7,8 +7,8 @@ app_name = 'blog'
 urlpatterns = [
     path(
         '',
-         views.IndexListView.as_view(),
-         name='index'
+        views.IndexListView.as_view(),
+        name='index'
     ),
 
     path(

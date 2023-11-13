@@ -94,7 +94,6 @@ class Post(PublishedModel):
                                  null=True,
                                  related_name='posts',
                                  verbose_name='Категория')
-    
 
     class Meta:
         verbose_name = 'публикация'
@@ -116,7 +115,7 @@ class Comment(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

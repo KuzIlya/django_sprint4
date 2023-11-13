@@ -1,14 +1,8 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
+from .forms import CommentForm
 from .models import Comment, Post
-from .forms import CommentForm, PostForm
-
-
-class PostMixin:
-    model = Post
-    form_class = PostForm
-    template_name = 'blog/create.html'
 
 
 class CommentMixin:
@@ -20,12 +14,12 @@ class CommentMixin:
 
     def dispatch(self, request, *args, **kwargs):
         instance = get_object_or_404(
-            Comment, pk=kwargs.get(
-                'comment_id'
-            )
+            Comment,
+            pk=kwargs['comment_id']
         )
+
         if instance.author != request.user:
-            return redirect('blog:post_detail', self.kwargs.get('comment_id'))
+            return redirect('blog:post_detail', self.kwargs['comment_id'])
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -34,17 +28,18 @@ class CommentMixin:
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('blog:post_detail',
-                       kwargs={'post_id': self.kwargs.get('post_id')}
-                       )
+        return reverse(
+            'blog:post_detail',
+            kwargs={'post_id': self.kwargs['post_id']}
+        )
 
 
 class DispatchMixin:
 
     def dispatch(self, request, *args, **kwargs):
-        instance = get_object_or_404(Post, pk=kwargs.get('post_id'))
+        instance = get_object_or_404(Post, pk=kwargs['post_id'])
         if instance.author != request.user:
-            return redirect('blog:post_detail', self.kwargs.get('post_id'))
+            return redirect('blog:post_detail', self.kwargs['post_id'])
         return super().dispatch(request, *args, **kwargs)
 
 

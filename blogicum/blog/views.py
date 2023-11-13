@@ -1,16 +1,17 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
 from django.contrib.auth.models import User
+from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.utils import timezone as tz
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone as tz
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
 
-from .models import Category, Post
-from .mixins import CommentMixin, DispatchMixin, DeleteMixin, EditMixin
 from .forms import CommentForm, PostForm, UserForm
+from .mixins import CommentMixin, DeleteMixin, DispatchMixin, EditMixin
+from .models import Category, Post
 
 PAGINATE_BY = 10
 
@@ -20,12 +21,13 @@ class IndexListView(ListView):
     paginate_by = PAGINATE_BY
     template_name = 'blog/index.html'
     ordering = '-pub_date'
-    queryset = (Post.objects.select_related('location', 'author', 'category')
-                .filter(is_published=True,
-                       category__is_published=True,
-                       pub_date__lte=tz.now())
-                .annotate(comment_count=Count("comments"))
-        )
+    queryset = (
+        Post.objects.select_related('location', 'author', 'category')
+        .filter(is_published=True,
+                category__is_published=True,
+                pub_date__lte=tz.now())
+        .annotate(comment_count=Count('comments'))
+    )
 
 
 class CategoryPostsListView(ListView):
@@ -40,11 +42,12 @@ class CategoryPostsListView(ListView):
             is_published=True
         )
 
-        return (category.posts.select_related('location', 'author', 'category')
-                .filter(is_published=True,
-                        pub_date__lte=tz.now())
-                .annotate(comment_count=Count("comments"))
-                .order_by("-pub_date")
+        return (
+            category.posts.select_related('location', 'author', 'category')
+            .filter(is_published=True,
+                    pub_date__lte=tz.now())
+            .annotate(comment_count=Count('comments'))
+            .order_by('-pub_date')
         )
 
 
@@ -81,13 +84,14 @@ class PostDetailView(DetailView):
         if not (is_author or (is_published and is_published_in_time)):
             raise Http404('Page does not exist')
 
-        context['comments'] = self.object.comments.select_related('author').filter(
-            post_id__is_published=True,
-            post_id__category__is_published=True,
+        context['comments'] = (
+            self.object.comments.select_related('author')
+            .filter(post_id__is_published=True,
+                    post_id__category__is_published=True)
         )
+
         context['form'] = CommentForm()
         return context
-
 
 
 class PostUpdateView(DispatchMixin, LoginRequiredMixin,
@@ -121,8 +125,8 @@ class ProfileListView(ListView):
         return (
             self.model.objects.select_related('author')
             .filter(author__username=self.kwargs['username'])
-            .annotate(comment_count=Count("comments"))
-            .order_by("-pub_date"))
+            .annotate(comment_count=Count('comments'))
+            .order_by('-pub_date'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -139,14 +143,14 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user
-    
+
     def form_valid(self, form):
         form.instance.author = self.request.user
         form.save()
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("blog:profile",
+        return reverse('blog:profile',
                        kwargs={'username': self.request.user.username})
 
 
@@ -166,7 +170,7 @@ class CommentUpdateView(LoginRequiredMixin, CommentMixin,
                         UpdateView, EditMixin):
     pass
 
+
 class CommentDeleteView(LoginRequiredMixin, CommentMixin,
                         DeleteView, DeleteMixin):
     pass
-    
