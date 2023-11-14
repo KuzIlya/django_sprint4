@@ -83,8 +83,13 @@ class PostDetailView(DetailView):
 
             raise Http404("Page does not exist")
 
-        context["comments"] = self.object.comments.select_related("author").filter(
-            post_id__is_published=True, post_id__category__is_published=True
+        context["comments"] = (
+            self.object.comments
+            .select_related("author")
+            .filter(
+                post_id__is_published=True,
+                post_id__category__is_published=True
+            )
         )
 
         context["form"] = CommentForm()
